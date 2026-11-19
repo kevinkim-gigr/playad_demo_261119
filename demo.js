@@ -333,6 +333,15 @@
     const g = asstGroup();
     g.add(textBlock(f.plan));
     await wait(700); if (!alive(id)) return;
+    if (f.creatives) {  // make the images and show them before asking to launch
+      const n = f.creatives.length, mk = g.add(makingCard(f.making, n));
+      for (let i = 1; i <= n; i++) { await wait(1500); if (!alive(id)) return; mk.setDone(i); }
+      await wait(500); if (!alive(id)) return;
+      mk.replaceWith(appear(carousel(f.making, f.creatives))); toBottom();
+      await wait(2600); if (!alive(id)) return;
+      g.add(textBlock(f.launchPlan));
+      await wait(700); if (!alive(id)) return;
+    }
     g.add(question(f.q, [{ label: 'Approve' }, { label: 'Request changes' }, { label: 'Cancel' }], async (opt, qel) => {
       qel.remove(); userBubble(opt.label, f.q);
       if (opt.label !== 'Approve') { asstGroup().add(textBlock([opt.label === 'Cancel' ? 'Okay, nothing changed.' : 'Sure. Tell me what you’d like to change.'])); return; }

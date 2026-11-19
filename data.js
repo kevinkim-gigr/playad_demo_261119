@@ -11,12 +11,16 @@
   };
 
   // ---- shared flows for the other Action-needed cards ----
-  const variationsFlow = (b, winner, img, cpa) => ({ chatTitle: 'Scale a Winning Ad Creative', avatar: 'casey', thinking: 'Planning variations of your winner',
-    plan: [[`“${winner}” is your winner at **${cpa} per sale**. I’ll make **2 new images** in the same look and test them next to it:`, ['**Variation A:** same scene, tighter crop on the product', '**Variation B:** same scene, a new headline', '**Budget:** $10/day each, moved from your weakest ad'], 'The original keeps running as is.'],
-           [`**${winner}** keeps beating your average (**${cpa} per sale**). Two fresh takes on it:`, ['**Variation A:** closer on the product', '**Variation B:** same look, different first line', '**Budget:** $10/day each, from your weakest ad'], 'Nothing else changes.']],
-    q: 'Approve making and launching 2 variations?', action: `Test 2 variations of ${winner}`, actionSub: 'Ad 2 · Budget 1',
-    desc: `Create 2 image variations of ${winner} and launch them in ${b.set} at $10/day each, moved from the weakest ad. Do not change the original ad.`,
-    items: [{ img, kind: 'Ad · Image', name: `${winner} · Variation A`, state: 'Created' }, { img, kind: 'Ad · Image', name: `${winner} · Variation B`, state: 'Created' }],
+  // creative flow: plan -> make images -> show them -> approve launch (same order as the main replace flow)
+  const variationsFlow = (b, winner, img, cpa, imgB) => ({ chatTitle: 'Scale a Winning Ad Creative', avatar: 'casey', thinking: 'Planning variations of your winner',
+    plan: [[`“${winner}” is your winner at **${cpa} per sale**. I’ll make **2 new images** in the same look to test next to it.`], [`**${winner}** keeps beating your average (**${cpa} per sale**). I’ll make two fresh takes on it.`]],
+    making: `${b.name} · ${winner.split(' · ')[0]} variations · Meta image ads`,
+    creatives: [{ img, title: 'Variation A · 4:5', sub: 'Closer on the product' }, { img: imgB || img, title: 'Variation B · 4:5', sub: 'Same look, new first line' }],
+    launchPlan: [['Here’s the plan:', ['**Launch:** both variations next to the original', '**Budget:** $10/day each, moved from your weakest ad', `**Copy and button:** same as the original, **${b.button}**`], 'The original keeps running as is.'],
+                 ['What I’ll change:', ['Launch **Variation A** and **Variation B**', 'Fund them with **$10/day each** from your weakest ad', 'Leave the original untouched']]],
+    q: 'Approve launching these 2 variations?', action: `Test 2 variations of ${winner}`, actionSub: 'Ad 2 · Budget 1',
+    desc: `Launch 2 image variations of ${winner} in ${b.set} at $10/day each, moved from the weakest ad. Do not change the original ad.`,
+    items: [{ img, kind: 'Ad · Image', name: `${winner} · Variation A`, state: 'Created' }, { img: imgB || img, kind: 'Ad · Image', name: `${winner} · Variation B`, state: 'Created' }],
     done: [['Done. **2 new variations are live** next to the original. You’ll see the comparison in tomorrow’s daily report.'], ['Both variations are **live** next to the original. Tomorrow’s 8:00 AM report will show which one wins.']] });
   const placementFlow = (b, place, bad, good, share, img) => ({ chatTitle: `Fix Costly ${place} Placement`, thinking: 'Comparing placement costs',
     plan: [[`${place} cost **${bad} per sale** vs. **${good} in Feed** over the last 7 days. Here’s the change:`, [`**${place}:** turn off in ${b.set}`, '**Other placements:** keep running', '**Total budget:** no change'], 'You’ll see in the daily report whether cost per sale comes down.'],
@@ -39,7 +43,7 @@
   S.push({ b: P,
     cards: [
       { kind: 'Risk', title: '“Track Day · Video 2” is wasting spend — pause it and replace', detail: 'Seen 6.1× per person, cost per sale up from $24 to $41', cta: 'Pause & replace' },
-      { kind: 'Opportunity', title: '“City Run · Video” is your winner — scale it while it works', detail: '$28 per sale for 5 days, below your $32 average', cta: 'Make variations', flow: variationsFlow(P, 'City Run · Video', A('ad_runner'), '$28') },
+      { kind: 'Opportunity', title: '“City Run · Video” is your winner — scale it while it works', detail: '$28 per sale for 5 days, below your $32 average', cta: 'Make variations', flow: variationsFlow(P, 'City Run · Video', A('ad_runner'), '$28', A('hero')) },
       { kind: 'Risk', title: 'Stories cost $39 per sale vs. $24 in Feed — turn off Stories', detail: 'Stories took 31% of spend in the last 7 days', cta: 'Turn off Stories', flow: placementFlow(P, 'Stories', '$39', '$24', '31%', A('ad_flatlay')) }],
     d1: { analysis: [['I checked the live account. **Track Day · Video 2** is the only ad running this creative. It cost **$41 per sale** yesterday, up from $24 a week ago, and people have now seen it **6.1 times** each.', 'Your other ads are steady at **$28–31 per sale**, so this one ad is wasting about **$40 a day**. I agree it should be paused and replaced.'],
                      ['Looked at the live numbers: **Track Day · Video 2** has run for 3 weeks and the same people keep seeing it, **6.1 times** each. Clicks fell **38%** and each sale now costs **$41**.', 'That’s about **$40 a day** above your other ads. Pausing and replacing it makes sense.']],
@@ -56,7 +60,7 @@
   S.push({ b: P,
     cards: [
       { kind: 'Risk', title: '“Flat lay · Image” is wasting spend — pause it and replace', detail: 'CTR 0.6% and $45 per sale, lowest in the account', cta: 'Pause & replace' },
-      { kind: 'Opportunity', title: '“City Run · Video” is your winner — scale it while it works', detail: '$26 per sale this week, 30% below your average', cta: 'Make variations', flow: variationsFlow(P, 'City Run · Video', A('ad_runner'), '$26') },
+      { kind: 'Opportunity', title: '“City Run · Video” is your winner — scale it while it works', detail: '$26 per sale this week, 30% below your average', cta: 'Make variations', flow: variationsFlow(P, 'City Run · Video', A('ad_runner'), '$26', A('v1')) },
       { kind: 'Risk', title: 'Reels cost $36 per sale vs. $22 in Feed — turn off Reels', detail: 'Reels took 27% of spend in the last 7 days', cta: 'Turn off Reels', flow: placementFlow(P, 'Reels', '$36', '$22', '27%', A('ad_track')) }],
     d1: { analysis: [['I checked the live account. **Flat lay · Image** gets a **0.6% CTR**, the lowest of your ads, and each sale costs **$45**.', 'Product-only shots get scrolled past in your account. Your ads with **a runner in the frame** sell at **$26–30**. I agree it should be replaced.'],
                      ['Live numbers: **Flat lay · Image** has the weakest click rate in the account (**0.6%**) and costs **$45 per sale**.', 'Your ads that show a person running do much better. Replacing it is the right call.']],
@@ -73,7 +77,7 @@
   S.push({ b: T,
     cards: [
       { kind: 'Risk', title: '“Mannequin · Image” is wasting spend — pause it and replace', detail: 'CTR 0.5% and $52 per sale, lowest in the account', cta: 'Pause & replace' },
-      { kind: 'Opportunity', title: '“Street style · Image” is your winner — scale it while it works', detail: '$31 per sale for 6 days, below your $38 average', cta: 'Make variations', flow: variationsFlow(T, 'Street style · Image', A('t_street'), '$31') },
+      { kind: 'Opportunity', title: '“Street style · Image” is your winner — scale it while it works', detail: '$31 per sale for 6 days, below your $38 average', cta: 'Make variations', flow: variationsFlow(T, 'Street style · Image', A('t_street'), '$31', A('t_cafe')) },
       { kind: 'Risk', title: '“Flat lay · Image” is spending without sales — move its budget', detail: '$35 spent, 1 sale in the last 3 days', cta: 'Move budget', flow: budgetFlow(T, 'Flat lay · Image', A('t_flatlay'), 'Street style · Image', A('t_street')) }],
     d1: { analysis: [['I checked the live account. **Mannequin · Image** gets a **0.5% CTR** and each sale costs **$52**, the most expensive in the account.', 'Your ads that show the dress **on a person, outdoors** sell at **$31–34**. I agree it should be paused and replaced.'],
                      ['Live numbers: **Mannequin · Image** costs **$52 per sale** and almost nobody clicks it (**0.5%**).', 'The dress sells when people see it worn. Replacing this one makes sense.']],
@@ -90,7 +94,7 @@
   S.push({ b: R,
     cards: [
       { kind: 'Risk', title: '“Laptop mug · Image” is wasting spend — pause it and replace', detail: 'Seen 5.4× per person, cost per signup up from $19 to $34', cta: 'Pause & replace' },
-      { kind: 'Opportunity', title: '“Pour-over · Image” is your winner — scale it while it works', detail: '$17 per signup for 5 days, below your $24 average', cta: 'Make variations', flow: variationsFlow(R, 'Pour-over · Image', A('r_pourover'), '$17') },
+      { kind: 'Opportunity', title: '“Pour-over · Image” is your winner — scale it while it works', detail: '$17 per signup for 5 days, below your $24 average', cta: 'Make variations', flow: variationsFlow(R, 'Pour-over · Image', A('r_pourover'), '$17', A('r_mug')) },
       { kind: 'Risk', title: 'Stories cost $31 per signup vs. $18 in Feed — turn off Stories', detail: 'Stories took 33% of spend in the last 7 days', cta: 'Turn off Stories', flow: placementFlow(R, 'Stories', '$31', '$18', '33%', A('r_bag')) }],
     d1: { analysis: [['I checked the live account. **Laptop mug · Image** has run for 4 weeks and people have seen it **5.4 times** each. Each new subscriber now costs **$34**, up from $19.', 'Your other ads bring subscribers at **$17–22**. I agree it should be paused and replaced.'],
                      ['Live numbers: **Laptop mug · Image** is worn out. Same people, **5.4 views** each, and a subscriber now costs **$34** instead of $19.', 'That’s well above your other ads. Pausing and replacing it makes sense.']],
