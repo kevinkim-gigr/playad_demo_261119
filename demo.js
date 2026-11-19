@@ -274,7 +274,7 @@
     await wait(3400); if (!alive(id)) return; stop();
     let g = asstGroup(); g.add(textBlock(D.analysis));
     await wait(900); if (!alive(id)) return;
-    stop = thinking('casey', ['Thinking', 'Planning replacements']);
+    stop = thinking('casey', ['Loading brand assets', 'Producing creatives in the workflow']);
     await wait(2400); if (!alive(id)) return; stop();
     g = asstGroup(); g.add(textBlock(D.fixIntro));
     await wait(700); if (!alive(id)) return;
@@ -293,7 +293,7 @@
     const id = run; const D = DATA.days[1];
     qel.remove(); userBubble(opt.label, D.approveQ);
     if (opt.label !== 'Approve') { asstGroup().add(textBlock([opt.label === 'Cancel' ? 'Okay, nothing changed. Video 2 keeps running as is.' : 'Sure. Tell me what to change: the look, the copy, or which ad to replace.'])); return; }
-    const stop = thinking('morgan', ['Thinking', 'Updating your Meta ads']);
+    const stop = thinking('morgan', ['Preparing to launch the campaign', 'Confirming the campaign change went through']);
     await wait(1800); if (!alive(id)) return; stop();
     const g = asstGroup();
     g.add(textBlock([D.applying]));
@@ -345,10 +345,10 @@
     g.add(question(f.q, [{ label: 'Approve' }, { label: 'Request changes' }, { label: 'Cancel' }], async (opt, qel) => {
       qel.remove(); userBubble(opt.label, f.q);
       if (opt.label !== 'Approve') { asstGroup().add(textBlock([opt.label === 'Cancel' ? 'Okay, nothing changed.' : 'Sure. Tell me what you’d like to change.'])); return; }
-      const st = thinking('morgan', ['Thinking', 'Updating your Meta ads']);
+      const st = thinking('morgan', ['Preparing to launch the campaign', 'Confirming the campaign change went through']);
       await wait(1600); if (!alive(id)) return; st();
       const g2 = asstGroup();
-      const panel = { title: f.action, meta: 'Pellstride · ' + now(), desc: f.desc, items: f.items }; lastPanel = panel;
+      const panel = { title: f.action, meta: ((DATA.brand && DATA.brand.name) || '') + ' · ' + now(), desc: f.desc, items: f.items }; lastPanel = panel;
       g2.add(actionCard(f.action, f.actionSub, () => openPanel(panel)));
       statusBar('Processing', f.items.length + ' processing');
       await wait(2000); if (!alive(id)) return;
