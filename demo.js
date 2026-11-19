@@ -39,7 +39,10 @@
     list().appendChild(el);
     return { el, add(node) { inner.appendChild(appear(node)); toBottom(); return node; } };
   }
+  // a list whose items are all arrays = several versions of the same message; pick one at random
+  const pickV = x => (Array.isArray(x) && x.length && x.every(Array.isArray)) ? x[Math.floor(Math.random() * x.length)] : x;
   function textBlock(paras) {
+    paras = pickV(paras);
     const el = tpl('text'); el.innerHTML = '';
     for (const p of paras) {
       if (Array.isArray(p)) { const ul = tpl('ul'); ul.innerHTML = p.map(li => `<li class="${P_CLS}">${md(li)}</li>`).join(''); el.appendChild(ul); }
@@ -350,7 +353,24 @@
     ['sheet-report', 'sheet-panel', 'sheet-viewer'].forEach(i => document.getElementById(i).hidden = true);
     showScreen('chat'); composerBusy(false); scroller().scrollTop = 0;
   }
+  let pills = null;
+  function fillMy() {
+    const b = DATA.brand; if (!b) return;
+    $$('[data-brand=name]').forEach(e => e.textContent = b.name);
+    $$('[data-brand=domain]').forEach(e => e.textContent = b.domain);
+    $$('[data-brand=initial]').forEach(e => e.textContent = b.name[0]);
+    const arts = $$('[data-screen=my] article').slice(0, 3);
+    if (!pills) { pills = {}; arts.forEach(a => { const p = a.querySelector('span.rounded-full'); const t = p && p.textContent.trim(); if (t && !pills[t]) pills[t] = p.cloneNode(true); }); }
+    DATA.cardsText.forEach((c, i) => {
+      const a = arts[i]; if (!a) return;
+      const p = a.querySelector('p'); if (p) p.textContent = c.title;
+      const det = [...a.querySelectorAll('span.truncate')].find(x => x.textContent.trim().length > 20); if (det) det.textContent = c.detail;
+      const btn = a.querySelector('[data-act]'); if (btn) { (btn.querySelector('span') || btn).textContent = c.cta; }
+      const pill = a.querySelector('span.rounded-full'); if (pill && pills[c.kind] && pill.textContent.trim() !== c.kind) pill.replaceWith(pills[c.kind].cloneNode(true));
+    });
+  }
   function start() {
+    fillMy();
     ++run; chats.length = 0; DATA.startChats.forEach(t => chats.push({ title: t })); paintDrawer();
     document.body.classList.remove('menu-unread');
     $$('[data-screen=my] article').forEach(a => a.hidden = false);
