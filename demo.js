@@ -292,7 +292,7 @@
   async function approve(opt, qel) {
     const id = run; const D = DATA.days[1];
     qel.remove(); userBubble(opt.label, D.approveQ);
-    if (opt.label !== 'Approve') { asstGroup().add(textBlock([opt.label === 'Cancel' ? 'Okay, nothing changed. Video 2 keeps running as is.' : 'Sure. Tell me what to change: the look, the copy, or which ad to replace.'])); return; }
+    if (opt.label !== 'Approve') { asstGroup().add(textBlock([opt.label === 'Cancel' ? 'Okay, nothing changed. Your ads keep running as they are.' : 'Sure. Tell me what to change: the look, the copy, or which ad to replace.'])); return; }
     const stop = thinking('morgan', ['Preparing to launch the campaign', 'Confirming the campaign change went through']);
     await wait(1800); if (!alive(id)) return; stop();
     const g = asstGroup();
@@ -313,9 +313,9 @@
     resetChat(D.chatTitle); document.body.classList.remove('menu-unread');
     await wait(500); if (!alive(id)) return;
     const g = asstGroup();
-    g.add(textBlock([D.hello]));
+    g.add(textBlock(D.hello));
     await wait(1100); if (!alive(id)) return;
-    g.add(textBlock([D.hello2]));
+    g.add(textBlock(D.hello2));
     await wait(1100); if (!alive(id)) return;
     g.add(reportCard(D.report.cardTitle, () => openReport(2)));
     await wait(1000); if (!alive(id)) return;
